@@ -1,0 +1,50 @@
+---
+title: "Trends in Sephora Reviews — Data Cleaning and Prep"
+author: "Camille Parker"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# Load packages
+
+```{r}
+library(tidyverse) ## Always load tidyverse
+library(tidytext) ## Needed for text analysis
+library(data.table) ## Faster reading and writing of large files 
+library(rstudioapi) ## set working directory
+```
+
+
+
+# Set directory to wherever this script lives
+
+```{r}
+## Set directory to wherever this script lives
+setwd(dirname(getActiveDocumentContext()$path))
+```
+
+
+# Load raw data
+
+```{r}
+
+## Load in product categories 
+product_list <- fread("/Users/camillejohnston/Documents/TidyTuesday/sephora_101423/raw_data/product_info.csv") %>% 
+  select(product_id, primary_category, secondary_category)
+
+
+## List CSV files, read them, and bind into a single data frame
+sephora <- list.files(path = "/Users/camillejohnston/Documents/TidyTuesday/sephora_101423/raw_data/", 
+                      pattern = "^reviews.*\\.csv$", 
+                      full.names = TRUE) %>%
+  map_df(~ fread(.x), .id = "file_id") %>% 
+  select(product_id, product_name, brand_name, submission_time, rating, is_recommended, review_title, review_text) %>% 
+  mutate(year = as.numeric(substr(submission_time, 1, 4))) %>%
+  distinct() %>% 
+  left_join(product_list)
+
+```
+
