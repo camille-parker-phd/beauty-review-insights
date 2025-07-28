@@ -13,8 +13,10 @@ editor_options:
 ```{r}
 library(tidyverse) ## Always load tidyverse
 library(tidytext) ## Needed for text analysis
-library(data.table) ## Faster reading and writing of large files 
 library(rstudioapi) ## set working directory
+library(knitr) ## print nice tables
+library(plotly) ## Interactive plots
+library(RColorBrewer) ## Color palettes
 ```
 
 
@@ -26,26 +28,169 @@ setwd(dirname(getActiveDocumentContext()$path))
 ```
 
 
-# Load raw data
+# Load overall product info
 
 ```{r}
+## List csv files
+utils::unzip("sephora_data.zip", list = TRUE)$Name
 
-chocolateData <- read_csv("../kaggle/input/product_info.csv")
+## Load product info
+product_info <- read_csv(unz("sephora_data.zip", "product_info.csv")) %>%
+  select(product_id, reviews, primary_category, secondary_category, tertiary_category) %>% 
+  mutate(category = ifelse(is.na(tertiary_category) == TRUE, secondary_category,
+                           tertiary_category))
+```
 
-## Load in product categories 
-product_list <- fread("product_info.csv") %>% 
-  select(product_id, primary_category, secondary_category)
+
+# Which categories have the most reviews
+
+```{r}
+product_info %>% 
+  group_by(category) %>% 
+  summarize(reviews = sum(reviews, na.rm = TRUE)) %>% 
+  arrange(desc(reviews)) %>% 
+  head(10) %>% 
+  kable()
+```
 
 
-## List CSV files, read them, and bind into a single data frame
-sephora <- list.files(path = "/Users/camillejohnston/Documents/TidyTuesday/sephora_101423/raw_data/", 
-                      pattern = "^reviews.*\\.csv$", 
-                      full.names = TRUE) %>%
-  map_df(~ fread(.x), .id = "file_id") %>% 
-  select(product_id, product_name, brand_name, submission_time, rating, is_recommended, review_title, review_text) %>% 
+# Load individual reviews
+
+```{r}
+reviews <- utils::unzip("sephora_data.zip", list = TRUE)$Name %>%
+  str_subset("^reviews_.*\\.csv$") %>%
+  map_dfr(~ read_csv(unz("sephora_data.zip", .x), 
+                     show_col_types = FALSE,
+                     col_select = c(product_id, product_name, brand_name,
+                                    submission_time, rating, is_recommended,
+                                    review_title, review_text))) %>% 
   mutate(year = as.numeric(substr(submission_time, 1, 4))) %>%
   distinct() %>% 
-  left_join(product_list)
+  inner_join(product_info, by = "product_id")
+```
 
+
+# Recount categories with highest number of reviewa
+
+```{r}
+reviews %>% 
+  group_by(category) %>% 
+  summarize(reviews = n()) %>% 
+  arrange(desc(reviews)) %>% 
+  head(10) %>% 
+  kable()
+```
+
+
+# Make files for type
+
+```{r}
+## Pick subtype
+subtype_reviews <- reviews %>% filter(category == "Moisturizers")
+
+## Merge the title of the review with the actual review, and unnest tokens
+tokens <- subtype_reviews %>%
+  unite("review_title_and_test", review_title, review_text, sep = " ") %>%
+  unnest_tokens(word, review_title_and_test) 
+
+## Count use of each token, and average across ratings and recommendation given
+token_counts <- tokens %>%
+  group_by(word) %>% 
+  summarise(n = n(),
+            average_rating = mean(rating, na.rm=TRUE), 
+            average_recommendation = mean(is_recommended, na.rm=TRUE)) %>%
+  arrange(-n) %>% 
+  filter(n>200)
+
+## Group word use by year
+token_counts_year <- tokens %>%
+  group_by(word, year) %>%
+  summarise(n = n(),
+            average_rating = mean(rating, na.rm = TRUE),
+            average_recommendation = mean(is_recommended, na.rm = TRUE)) %>% 
+  arrange(-n)%>% 
+  filter(n>20) %>% ## keep words used more than 20x per year
+  group_by(word) %>%
+  filter(n() > 10) %>% ## keep words that had substantial use more than half of the years
+  ungroup()
+```
+
+
+
+```{r}
+## Distribution of word counts
+token_counts %>% 
+  ggplot(aes(n)) + 
+  geom_histogram(fill="cornflowerblue") + 
+  geom_vline(aes(xintercept = mean(n, na.rm=TRUE)), lty = 2) +
+  geom_vline(aes(xintercept = median(n, na.rm=TRUE))) +
+  scale_x_log10(labels = function(x) format(x, scientific = FALSE)) +
+  labs(title = "Word Counts", subtitle = "solid line = median; dotted line = mean")+
+  theme_classic()
+```
+
+
+```{r}
+token_counts %>%
+  anti_join(get_stopwords()) %>%
+  filter(str_detect(word, "[A-Za-z]")) %>% 
+  filter(nchar(word) > 1) %>% 
+  filter(n > 30) %>% 
+  ggplot(aes(n, average_rating)) +
+  geom_text(aes(label = word), check_overlap = TRUE, show.legend = FALSE, vjust = "top", hjust = "left") +
+  scale_x_log10(labels = function(x) format(x, scientific = FALSE)) +
+  theme_classic()
+```
+
+
+```{r}
+linear_slopes <- token_counts_year %>%
+  group_by(word) %>%
+  do(model = lm(average_rating ~ year, data = .)) %>%
+  filter(!is.null(model)) %>%
+  summarize(
+    word = word[1],
+    slope = coef(model)[2],         # Extract the slope coefficient
+    intercept = coef(model)[1],     # Extract the intercept coefficient
+    significance = ifelse(nrow(summary(model)$coefficients) >= 2 & ncol(summary(model)$coefficients) >= 4,
+                          summary(model)$coefficients[2, 4], NA)  # Extract the p-value for the slope if available, otherwise NA
+  ) %>%
+  ungroup()
+```
+
+
+```{r}
+declining_words <- linear_slopes %>% 
+  arrange(slope) %>% 
+  head(n = 5) %>%
+  select(word, slope)
+
+ascending_words <- linear_slopes %>% 
+  arrange(slope) %>% 
+  tail(n = 5) %>%
+  select(word, slope)
+
+shifting_words <- rbind(declining_words, ascending_words) %>% 
+  arrange(-slope)
+
+colour_map <- set_names(rev(colorRampPalette(brewer.pal(10, "RdYlGn"))(10)),
+                        shifting_words$word)
+
+shifting_words %>%
+  inner_join(token_counts_year) %>% View()
+  ggplot(aes(x     = year,
+             y     = average_rating,
+             group = word,
+             color = word)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_manual(values = colour_map) +
+  scale_x_continuous(breaks = c(2008,2010,2012,2014,2016,2018,2020,2022))+
+  scale_y_continuous(limits = c(1,5),
+                     breaks = c(1,2,3,4,5))+
+  labs(x     = "Year",
+       y     = "Average Rating",
+       color = "Word",
+       title = "Trends in Moisturizers") +
+  theme_classic()
 ```
 
