@@ -1,7 +1,7 @@
 ---
-title: "Trends in Sephora Reviews — Data Cleaning and Prep"
+title: "Trends in Sephora Reviews"
 author: "Camille Parker"
-date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+date: "Last compiled on `r format(Sys.time(), '%B %d, %Y')`"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -20,9 +20,13 @@ library(RColorBrewer) ## Color palettes
 ```
 
 
-# Set directory to wherever this script lives
+# Environment prep
 
 ```{r}
+## Suppress messages
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+## Set directory to wherever this script lives
 setwd(dirname(getActiveDocumentContext()$path))
 ```
 
