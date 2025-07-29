@@ -23,7 +23,6 @@ library(RColorBrewer) ## Color palettes
 # Set directory to wherever this script lives
 
 ```{r}
-## Set directory to wherever this script lives
 setwd(dirname(getActiveDocumentContext()$path))
 ```
 
@@ -42,7 +41,7 @@ product_info <- read_csv(unz("sephora_data.zip", "product_info.csv")) %>%
 ```
 
 
-# Which categories have the most reviews
+# Which categories have the most reviews?
 
 ```{r}
 product_info %>% 
@@ -70,7 +69,7 @@ reviews <- utils::unzip("sephora_data.zip", list = TRUE)$Name %>%
 ```
 
 
-# Recount categories with highest number of reviewa
+# Recount categories with highest number of reviews
 
 ```{r}
 reviews %>% 
@@ -86,14 +85,14 @@ reviews %>%
 
 ```{r}
 ## Pick subtype
-subtype_reviews <- reviews %>% filter(category == "Face Wash & Cleansers")
+subtype_reviews <- reviews %>% filter(category == "Moisturizers")
 
 ## Merge the title of the review with the actual review, and unnest tokens
 tokens <- subtype_reviews %>%
   unite("review_title_and_test", review_title, review_text, sep = " ") %>%
   unnest_tokens(word, review_title_and_test) 
 
-## Count use of each token, and average across ratings and recommendation given
+## Count use of each token, and average across ratings/recommendation given
 token_counts <- tokens %>%
   group_by(word) %>% 
   summarise(n = n(),
@@ -116,9 +115,9 @@ token_counts_year <- tokens %>%
 ```
 
 
+# Look at distribution of word counts
 
 ```{r}
-## Distribution of word counts
 token_counts %>% 
   ggplot(aes(n)) + 
   geom_histogram(fill="cornflowerblue") + 
@@ -130,12 +129,16 @@ token_counts %>%
 ```
 
 
+# Look at how key words are distributed accross average rating
+
+Good sanity check to see if desirable words float to the top, etc.
+
 ```{r}
 token_counts %>%
   anti_join(get_stopwords()) %>%
   filter(str_detect(word, "[A-Za-z]")) %>% 
   filter(nchar(word) > 1) %>% 
-  filter(n > 30) %>% 
+  filter(n > 100) %>% 
   ggplot(aes(n, average_rating)) +
   geom_text(aes(label = word), check_overlap = TRUE, show.legend = FALSE, vjust = "top", hjust = "left") +
   scale_x_log10(labels = function(x) format(x, scientific = FALSE)) +
@@ -143,21 +146,26 @@ token_counts %>%
 ```
 
 
+# Run linear models and extract results
+
 ```{r}
 linear_slopes <- token_counts_year %>%
   group_by(word) %>%
   do(model = lm(average_rating ~ year, data = .)) %>%
   filter(!is.null(model)) %>%
-  summarize(
-    word = word[1],
-    slope = coef(model)[2],         # Extract the slope coefficient
-    intercept = coef(model)[1],     # Extract the intercept coefficient
-    significance = ifelse(nrow(summary(model)$coefficients) >= 2 & ncol(summary(model)$coefficients) >= 4,
-                          summary(model)$coefficients[2, 4], NA)  # Extract the p-value for the slope if available, otherwise NA
-  ) %>%
+  summarize(word = word[1],
+            slope = coef(model)[2],
+            intercept = coef(model)[1], 
+            significance = ifelse(nrow(summary(model)$coefficients) >= 2 & 
+                                  ncol(summary(model)$coefficients) >= 4,
+                                  summary(model)$coefficients[2, 4], NA)) %>%
   ungroup()
 ```
 
+
+# Select words with highest and lowest linear coefficients
+
+In other words, which keywords have the largest decline or increase in associated rating?
 
 ```{r}
 declining_words <- linear_slopes %>% 
@@ -172,30 +180,49 @@ ascending_words <- linear_slopes %>%
 
 shifting_words <- rbind(declining_words, ascending_words) %>% 
   arrange(-slope)
+```
 
+
+# Time to plot!
+
+```{r}
+## Set up some nice colors
 colour_map <- set_names(rev(colorRampPalette(brewer.pal(10, "RdYlGn"))(10)),
                         shifting_words$word)
 
+## Make sure plot legend stays in order of coefs (not alphabetical)
 word_order <- shifting_words$word
 
-shifting_words %>%
+## Set up plot
+token_trajectories <- shifting_words %>%
   inner_join(token_counts_year) %>% 
-  mutate(
-    word = factor(word, levels = word_order)
-  ) %>% 
-  ggplot(aes(x     = year,
-             y     = average_rating,
-             group = word,
-             color = word)) +
+  mutate(word = factor(word, levels = word_order)) %>% 
+  ggplot(aes(x = year, y = average_rating, group = word, color = word)) +
   geom_smooth(method = "lm", se = FALSE) +
   scale_color_manual(values = colour_map) +
   scale_x_continuous(breaks = c(2008,2010,2012,2014,2016,2018,2020,2022))+
   scale_y_continuous(limits = c(1,5),
                      breaks = c(1,2,3,4,5))+
-  labs(x     = "Year",
-       y     = "Average Rating",
-       color = "Word",
-       title = "Trends in Face Cleansers") +
-  theme_classic()
+  labs(x = "Year",
+       y = "Average Rating",
+       color = "Keyword",
+       title = "Trends in Ratings of Moisturizers") +
+  theme_bw()
+
+## Make interactive
+ggplotly(token_trajectories)
+```
+
+
+# Let's take a closer look at one of our keywords
+
+```{r}
+subtype_reviews %>% 
+  filter(year >= 2022 & 
+           rating == 5 &
+           str_detect(review_text, "packaging")) %>% 
+  sample_n(3) %>% 
+  select(review_text) %>% 
+  kable()
 ```
 
