@@ -3,13 +3,13 @@ Anyone who’s ever cringed at their old prom photos knows that beauty trends te
 Using Sephora consumer reviews, this project explores:  
 - What qualities are associated with higher or lower product ratings over time?  
 - What recommendations can we make for future product development?  
- 
+
 ## Data 
-Raw data downloaded from https://www.kaggle.com/datasets/nadyinky/sephora-products-and-skincare-reviews/
+Raw data downloaded from [Kaggle: Sephora Products and Skincare Reviews](https://www.kaggle.com/datasets/nadyinky/sephora-products-and-skincare-reviews/)
 
 ## Key results
 ### Trends in Moisturizers
-🌟 **Recent Trend:** Greater emphasis on <ins>**packaging**</ins> in positive reviews. 
+🌟 **Recent Trend:** Greater emphasis on <ins>**packaging**</ins> in positive reviews.  
 Examples: "*I especially love the packaging.*" and "*The packaging is simple but practical*"  
 💡 **Recommendation Idea:** Invest in attractive, functional, user-friendly packaging for new moisturizers.  
 <img align="left" width="398" height="322" alt="moisturizers" src="https://github.com/user-attachments/assets/0edd0f8c-4310-481a-9406-f6f1e7b17d76" />
