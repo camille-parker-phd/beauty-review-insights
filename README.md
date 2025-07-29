@@ -7,15 +7,15 @@ Raw data downloaded from https://www.kaggle.com/datasets/nadyinky/sephora-produc
 ## Key results
 ### Trends in Moisturizers
 🌟 Recently, consumers have more of a focus on **packaging** with their favorite moisturizers.  
-Examples: "*I especially love the packaging. *" and "*The packaging is simple but practical*"  
-**Recommendation Idea:** invest in improving user experience of new moisturizer packaging  
+Examples: "*I especially love the packaging.*" and "*The packaging is simple but practical*"  
+**Recommendation Idea:** Invest in improving user experience of new moisturizer packaging.  
 <img align="left" width="398" height="322" alt="moisturizers" src="https://github.com/user-attachments/assets/0edd0f8c-4310-481a-9406-f6f1e7b17d76" />
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 ### Trends in Facial Cleansers  
 🌟 Recently, consumers have more of a focus on **ingredients** when rating cleansers favorably.  
 Examples: "*The ingredients are great*" and "*All ingredients are vegan*"  
-**Recommendation Idea:** incorporate more transparent marketing of individual ingredients in future cleanser products  
-<img align="left" width="398" height="322" alt="cleansers" src="https://github.com/user-attachments/assets/02c21695-434c-4fdd-9cf2-9d0406d59a7f" />  
+**Recommendation Idea:** Increase transparent marketing of ingredients in future cleanser products.  
+<img align="left" width="398" height="322" alt="cleansers" src="https://github.com/user-attachments/assets/db3be1f7-4605-4dd1-99a2-9610a4711e50" />
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 ### Trends in Facial Serums  
 🌟 In earlier years, worse rated products mentioned being sticky or leaving a residue, and recently, higher rated products focus on a lack of stickiness or residue.  
