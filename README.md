@@ -6,7 +6,7 @@ Raw data downloaded from https://www.kaggle.com/datasets/nadyinky/sephora-produc
 
 ## Key results
 ### Trends in Moisturizers
-🌟 Recently, consumers have more of a focus on **packaging** with their favorite moisturizers.  
+🌟 Recently, consumers have more of a focus on <ins>**packaging**</ins> with their favorite moisturizers.  
 Examples: "*I especially love the packaging.*" and "*The packaging is simple but practical*"  
 **Recommendation Idea:** Invest in improving user experience of new moisturizer packaging.  
 <img align="left" width="398" height="322" alt="moisturizers" src="https://github.com/user-attachments/assets/0edd0f8c-4310-481a-9406-f6f1e7b17d76" />
