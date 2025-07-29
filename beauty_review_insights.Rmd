@@ -86,7 +86,7 @@ reviews %>%
 
 ```{r}
 ## Pick subtype
-subtype_reviews <- reviews %>% filter(category == "Moisturizers")
+subtype_reviews <- reviews %>% filter(category == "Face Wash & Cleansers")
 
 ## Merge the title of the review with the actual review, and unnest tokens
 tokens <- subtype_reviews %>%
@@ -176,8 +176,13 @@ shifting_words <- rbind(declining_words, ascending_words) %>%
 colour_map <- set_names(rev(colorRampPalette(brewer.pal(10, "RdYlGn"))(10)),
                         shifting_words$word)
 
+word_order <- shifting_words$word
+
 shifting_words %>%
-  inner_join(token_counts_year) %>% View()
+  inner_join(token_counts_year) %>% 
+  mutate(
+    word = factor(word, levels = word_order)
+  ) %>% 
   ggplot(aes(x     = year,
              y     = average_rating,
              group = word,
@@ -190,7 +195,7 @@ shifting_words %>%
   labs(x     = "Year",
        y     = "Average Rating",
        color = "Word",
-       title = "Trends in Moisturizers") +
+       title = "Trends in Face Cleansers") +
   theme_classic()
 ```
 
