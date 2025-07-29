@@ -8,7 +8,7 @@ Raw data downloaded from https://www.kaggle.com/datasets/nadyinky/sephora-produc
 ### Trends in Facial Cleansers  
 🌟 Recently, consumers have more of a focus on **ingredients** when rating cleansers favorably.  
 Examples: "*The ingredients are great*" and "*All ingredients are vegan*"  
-<img align="left" img width="498" height="422" alt="cleansers" src="https://github.com/user-attachments/assets/02c21695-434c-4fdd-9cf2-9d0406d59a7f" />  
+<img align="left" img width="398" height="322" alt="cleansers" src="https://github.com/user-attachments/assets/02c21695-434c-4fdd-9cf2-9d0406d59a7f" />  
 <br />
-
+<br /><br /><br /><br /><br /><br /><br />
 ### Trends in Facial Serums
