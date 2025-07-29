@@ -12,13 +12,13 @@ Examples: "*I especially love the packaging.*" and "*The packaging is simple but
 <img align="left" width="398" height="322" alt="moisturizers" src="https://github.com/user-attachments/assets/0edd0f8c-4310-481a-9406-f6f1e7b17d76" />
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 ### Trends in Facial Cleansers  
-🌟 Recently, consumers have more of a focus on **ingredients** when rating cleansers favorably.  
+🌟 Recently, consumers have more of a focus on  <ins>**ingredients**</ins> when rating cleansers favorably.  
 Examples: "*The ingredients are great*" and "*All ingredients are vegan*"  
 **Recommendation Idea:** Increase transparent marketing of ingredients in future cleanser products.  
 <img align="left" width="398" height="322" alt="cleansers" src="https://github.com/user-attachments/assets/db3be1f7-4605-4dd1-99a2-9610a4711e50" />
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 ### Trends in Facial Serums  
-🌟 In earlier years, worse rated products mentioned being sticky or leaving a residue, and recently, higher rated products focus on a lack of stickiness or residue.  
+🌟 In earlier years, worse rated products mentioned being <ins>**sticky**</ins> or leaving a <ins>**residue**</ins>, and recently, higher rated products focus on a lack of stickiness or residue.  
 2010 Two-Star Example: "*The serum is so sticky on skin, I couldn’t stand it!*"  
 2022 Five-Star Example "*My favorite thing about this serum is that it doesn’t have a sticky residue after applying.*"  
 **Recommendation Idea:** Texture matters -- non-sticky, fast-absorbing serums remain in demand!  
